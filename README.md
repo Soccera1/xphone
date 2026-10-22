@@ -1,5 +1,7 @@
 # XPhone
 
+A native Java client for Android phones and tablets is available in [`android/`](android/README.md). It supports the same server, stereo Opus, HTTPS with HTTP/3/QUIC, and HTTP/2 fallback. See its README for APK build and installation instructions.
+
 A native C/Xlib voice phone for **Linux phones and desktop PCs**, with an invited-user relay server. Calls support real stereo, speakerphone echo cancellation, presence, incoming ringing, mute, and volume control.
 
 All traffic uses HTTPS. HTTP/3 over QUIC is preferred; HTTP/2 over TLS is the fallback. HTTP/3 carries audio in HTTP Datagrams and keeps signaling reliable. The server bridges clients on different transports without transcoding audio. The server operator is trusted with call audio.

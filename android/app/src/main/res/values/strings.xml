@@ -1,0 +1,4 @@
+<resources>
+    <string name="stereo_option">Use stereo when available</string>
+    <string name="http2_option">HTTP/2 only (otherwise prefer QUIC)</string>
+</resources>

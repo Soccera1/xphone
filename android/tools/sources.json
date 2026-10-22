@@ -1,0 +1,10 @@
+[
+  {"name":"openssl","url":"https://www.openssl.org/source/openssl-3.5.8.tar.gz","sha256":"a8f84a39918ec6415ce765d9b429d313ba97b8143169c172e734b9514464f5b2"},
+  {"name":"libevent","url":"https://codeload.github.com/libevent/libevent/tar.gz/refs/tags/release-2.1.13-stable","sha256":"1a0885e17dc78afbaeddf13cf849f9238bbc24acdc178464a0d1934d7c5ffbd5"},
+  {"name":"nghttp2","url":"https://codeload.github.com/nghttp2/nghttp2/tar.gz/refs/tags/v1.70.0","sha256":"d38d641fb3877b4847c774ad88b5f3ab70daf1ae0e616079bbeec4691186fc6a"},
+  {"name":"nghttp3","url":"https://codeload.github.com/ngtcp2/nghttp3/tar.gz/refs/tags/v1.18.0","sha256":"6558c14929a79ced8de1cb8bb4e4b17974e531616501ffb0431135bb495f5be7"},
+  {"name":"ngtcp2","url":"https://codeload.github.com/ngtcp2/ngtcp2/tar.gz/refs/tags/v1.25.0","sha256":"fff5d584940be77005d0135045ebe4760851f818c4349c6516a49b8d8dfa1e55"},
+  {"name":"jansson","url":"https://codeload.github.com/akheron/jansson/tar.gz/refs/tags/v2.15.1","sha256":"dbf95cb0af903f4fb8b61507d96b45b67db7d1479688ede352e1d571394d06f7"},
+  {"name":"opus","url":"https://downloads.xiph.org/releases/opus/opus-1.5.2.tar.gz","sha256":"65c1d2f78b9f2fb20082c38cbe47c951ad5839345876e46941612ee87f9a7ce1"},
+  {"name":"sfparse","url":"https://codeload.github.com/ngtcp2/sfparse/tar.gz/4b313cfd2e1b389ae632b36dcd50402307289af2","sha256":"cc8256a65a03577654941839e100b3d61fe7f7d69f2a08f9b2f17a123b580b4c","path":"nghttp3/lib/sfparse"}
+]
