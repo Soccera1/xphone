@@ -1,0 +1,8 @@
+{
+  "bind": "127.0.0.1",
+  "port": 8443,
+  "http3": true,
+  "certificate": "/etc/xphone/fullchain.pem",
+  "private_key": "/etc/xphone/privkey.pem",
+  "users_file": "/etc/xphone/users.json"
+}

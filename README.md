@@ -60,7 +60,34 @@ Create the same dedicated `xphone` user/group and prepare `/etc/xphone` and cert
 
 The OpenRC service uses `supervise-daemon`, retries crashes after three seconds (at most five respawns within 60 seconds), and writes logs to `/var/log/xphone/xphoned.log`. Its `start_pre` hook creates the log directory with the service account as owner. OpenRC must be built with libcap support to grant the ambient `CAP_NET_BIND_SERVICE` capability for TCP/UDP 443. For an unprivileged server port, set `xphoned_capabilities=""` in `conf.d`; the service still runs as `xphone`. Use `rc-service xphoned restart` after invitation or certificate changes, and `rc-service xphoned stop` to stop it.
 
-HTTPS terminates directly in `xphoned`. A normal HTTP reverse proxy is insufficient for the QUIC media path: a proxy must explicitly support the XPhone extended-CONNECT protocols and RFC 9297 datagram forwarding. HTTP/1.1 and WebSocket fallback are not implemented.
+HTTPS terminates in `xphoned`, including when using the nginx stream reverse proxy below. The application uses extended CONNECT and RFC 9297 datagrams; HTTP/1.1 and WebSocket fallback are not implemented.
+
+### nginx reverse proxy
+
+Use [examples/nginx-stream.conf](examples/nginx-stream.conf) to forward **TCP 443 and UDP 443** to `xphoned` on `127.0.0.1:8443`. nginx proxies encrypted TCP/UDP streams, preserving HTTP/2, HTTP/3/QUIC, extended CONNECT, and datagrams. TLS terminates in `xphoned`, which keeps the certificate and private key for the **public hostname**. Clients continue using `https://phone.example.org`, including the Android client.
+
+1. Enable nginx's stream module. Check `nginx -V` for `--with-stream` or `--with-stream=dynamic`; a dynamic build also needs its distribution's stream module loaded through `load_module` in the main configuration. The nginx HTTP/3 module is not required for this passthrough setup. See the [nginx stream module documentation](https://nginx.org/en/docs/stream/ngx_stream_core_module.html).
+2. Use [examples/server-behind-nginx.json](examples/server-behind-nginx.json) for `/etc/xphone/server.json`, adjusting certificate and invitation paths. Bind the backend to loopback as shown; expose only nginx's TCP/UDP 443 externally. Existing systemd/OpenRC services use this same server configuration path. On OpenRC, set `xphoned_capabilities=""` in `/etc/conf.d/xphoned`, since the backend's port 8443 is unprivileged.
+3. Install the snippet from the repository root:
+
+   ```sh
+   install -d -m 0755 /etc/nginx/stream.d
+   install -m 0644 examples/nginx-stream.conf /etc/nginx/stream.d/xphone.conf
+   ```
+
+4. Add the following at the **main level** of `/etc/nginx/nginx.conf`, alongside `events {}` and `http {}`. If a `stream {}` block already exists, add only the include inside it. This snippet does not belong in an HTTP `sites-enabled` directory or inside `http {}`.
+
+   ```nginx
+   stream {
+       include /etc/nginx/stream.d/*.conf;
+   }
+   ```
+
+5. Check `nginx -t`, restart `xphoned` with the loopback configuration, then reload nginx. On OpenRC, use `rc-service xphoned restart` and `rc-service nginx reload` (or `start` if nginx is stopped). Enable nginx at boot with `rc-update add nginx default`. On systemd, use `systemctl restart xphoned` and `systemctl reload nginx` (or `start`).
+
+The example listens on all IPv4/IPv6 addresses. These sockets must be free for nginx's stream listeners; an existing nginx HTTP/HTTPS listener cannot also bind the same address and port. To keep another website on 443, give XPhone a dedicated public IP and replace both listen addresses in the snippet, or choose another public port for **both** TCP and UDP and include that port in client URLs. Remove the IPv6 listen lines on an IPv4-only host.
+
+The 75-second proxy idle timeout accommodates XPhone's 15-second heartbeat. UDP sessions allow unlimited request/response packets so QUIC connections remain associated with one backend socket. Keep `proxy_protocol off` and leave TLS wrapping (`proxy_ssl`) disabled: `xphoned` expects the original TLS/QUIC bytes, without an extra PROXY header or TLS wrapping. If your surrounding `stream {}` configuration enables `proxy_ssl on`, override it with `proxy_ssl off` inside both example server blocks. nginx does not need the TLS key, HTTP header rewrites, buffering settings, or `location`/`proxy_pass https://...` configuration. Certificate renewal still requires restarting `xphoned`. The [nginx stream proxy documentation](https://nginx.org/en/docs/stream/ngx_stream_proxy_module.html) describes the forwarding and timeout directives.
 
 ## Run a client
 
@@ -120,4 +147,4 @@ It prints JSON events and accepts newline-delimited commands such as `{"action":
 
 If the client cannot connect, check the URL, certificate hostname, CA trust, invitation, firewall, and whether the username is already connected. Certificate/authentication failures never disable verification or retry indefinitely. If HTTP/3 is unavailable, the status shows HTTP/2 after fallback. Audio errors usually indicate that PulseAudio/PipeWire is unavailable or the selected device disappeared.
 
-Real ARM64 phone battery/CPU measurements, physical touchscreen input, and room-acoustic speakerphone quality require target hardware. Automated desktop and virtual-device tests do not substitute for those acceptance checks. Native Android/iOS clients, public signup, text/video/group calls, SIP/PSTN, recording, and end-to-end encryption are outside this version.
+Real ARM64 phone battery/CPU measurements, physical touchscreen input, and room-acoustic speakerphone quality require target hardware. Automated desktop and virtual-device tests do not substitute for those acceptance checks. The [Android client](android/README.md) has its own build and device-testing instructions. Native iOS clients, public signup, text/video/group calls, SIP/PSTN, recording, and end-to-end encryption are outside this version.
