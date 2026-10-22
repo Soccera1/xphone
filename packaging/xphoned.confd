@@ -1,0 +1,14 @@
+# /etc/conf.d/xphoned
+
+xphoned_command="/usr/local/bin/xphoned"
+xphoned_config="/etc/xphone/server.json"
+xphoned_user="xphone:xphone"
+xphoned_log_dir="/var/log/xphone"
+
+# Requires OpenRC built with libcap support. The ^ prefix grants an ambient
+# capability; do not use cap_net_bind_service=+ep (file-capability syntax).
+xphoned_capabilities="^cap_net_bind_service"
+
+# For a server configured to use an unprivileged port, such as 8443, the
+# capability can be disabled instead:
+# xphoned_capabilities=""

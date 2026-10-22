@@ -1,0 +1,35 @@
+#!/sbin/openrc-run
+
+name="XPhone HTTPS voice relay"
+description="Private HTTP/3 and HTTP/2 voice relay"
+supervisor="supervise-daemon"
+
+command="${xphoned_command:-/usr/local/bin/xphoned}"
+command_args="--config \"${xphoned_config:-/etc/xphone/server.json}\""
+command_user="${xphoned_user:-xphone:xphone}"
+pidfile="/run/${RC_SVCNAME}.pid"
+required_files="${xphoned_config:-/etc/xphone/server.json}"
+
+# OpenRC/libcap IAB syntax: ^ raises this capability in the ambient set,
+# preserving low-port binding after switching to the unprivileged user.
+capabilities="${xphoned_capabilities-^cap_net_bind_service}"
+no_new_privs="yes"
+umask="0077"
+
+respawn_delay="3"
+respawn_max="5"
+respawn_period="60"
+retry="TERM/10/KILL/5"
+
+output_log="${xphoned_log_dir:-/var/log/xphone}/xphoned.log"
+error_log="${output_log}"
+
+depend() {
+    need net
+    use dns logger
+}
+
+start_pre() {
+    checkpath --directory --mode 0750 --owner "${command_user}" \
+        "${xphoned_log_dir:-/var/log/xphone}"
+}

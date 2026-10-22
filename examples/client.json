@@ -1,0 +1,8 @@
+{
+  "server": "https://phone.example.org",
+  "username": "alice",
+  "token": "REPLACE_WITH_THE_64_CHARACTER_TOKEN_FROM_XPHONED_ADD_USER",
+  "audio_channels": "auto",
+  "opus_complexity": 5,
+  "transport": "auto"
+}

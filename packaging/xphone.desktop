@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=XPhone
+Comment=Private stereo voice calls
+Exec=xphone
+Icon=call-start
+Terminal=false
+Categories=Network;Telephony;
+StartupWMClass=XPhone
